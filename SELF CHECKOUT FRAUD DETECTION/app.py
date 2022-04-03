@@ -56,6 +56,13 @@ def model():
         session['valuePerSecond']=value_PerSecond
         session['lineItemVoidsPerPosition']=line_ItemVoidsPerPosition
 
+
+        return redirect(url_for('predict_m'))
+    else:  
+        return render_template('model.html')
+
+@app.route('/prediction')
+def predict_m():
         session['totalScanned'] = float(session['scannedLineItemsPerSecond']) * float(session['totalScanTimeInSeconds'])
     # avgValuePerScan:
         session['avgTimePerScan'] = 1/ float(session['scannedLineItemsPerSecond'])
@@ -85,30 +92,24 @@ def model():
     # quantiModPerTime
         session['quantiModPerTime'] = float(session['quantityModifications']) / float(session['totalScanTimeInSeconds'])
  
-        return redirect(url_for('predict_m'))
-    else:  
-        return render_template('model.html')
-
-@app.route('/prediction')
-def predict_m():
-    input_data=[session['trustLevel'], session['totalScanTimeInSeconds'], session['grandTotal'], session['lineItemVoids'],
+        input_data=[session['trustLevel'], session['totalScanTimeInSeconds'], session['grandTotal'], session['lineItemVoids'],
        session['scansWithoutRegistration'], session['quantityModifications'],
        session['scannedLineItemsPerSecond'], session['valuePerSecond'],
        session['lineItemVoidsPerPosition'], session['totalScanned'], session['avgTimePerScan'],
        session['avgValuePerScan'], session['withoutRegisPerPosition'], session['quantiModPerPosition'],
        session['lineItemVoidsPerTotal'], session['withoutRegisPerTotal'], session['quantiModPerTotal'],
        session['lineItemVoidsPerTime'], session['withoutRegisPerTime'], session['quantiModPerTime']]
-    input_data = np.asarray(input_data)
-    input_data_reshaped = input_data.reshape(1,-1)
-    prediction=modelm.predict(input_data_reshaped)
+        input_data = np.asarray(input_data)
+        input_data_reshaped = input_data.reshape(1,-1)
+        prediction=modelm.predict(input_data_reshaped)
 
 
-    if prediction[0]==0:
-        reverb ='not fraud'
-        return render_template('prediction1.html',predicts=reverb)
-    if prediction[0]==1:
-        reverb ='fraud'
-    return render_template('prediction.html',predicts=reverb)
+        if prediction[0]==0:
+            reverb ='not fraud'
+            return render_template('prediction1.html',predicts=reverb)
+        if prediction[0]==1:
+            reverb ='fraud'
+            return render_template('prediction.html',predicts=reverb)
 
 @app.route('/')
 @app.route('/login', methods =['GET', 'POST'])
